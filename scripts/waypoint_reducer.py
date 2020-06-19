@@ -25,23 +25,29 @@ def take_input():
 
 # Callback for listning waypoints
 def callback(msg):
+    
     euler = tf.transformations.euler_from_quaternion([0, 0, round(msg.pose.orientation.z,2), round(msg.pose.orientation.w,2)])
     points.append([msg.pose.position.x,msg.pose.position.y])
     slopes.append(math.tan(euler[2]))
-    print(len(points))
+    print(euler[2])
+    print(slopes[len(slopes)-1])
+    #print(len(points))
     if len(points)>991: 
         draw_path(points)
 
-      
 # Draw the Paths
 def draw_path(points):
 
     # Plot original Waypoints
     print(len(points))
     plot.subplot(211)
+    plot.xlim(0.33, 0.78)
+    plot.ylim(-3.7,-0.3)
     plot.plot([p[0] for p in points], [p[1] for p in points], 'o')
-    plot.show(block=False)
+    plot.title('All 992 Waypoints')
+    #plot.show(block=False)
     
+
     while True:
         N=take_input()
         # Select N waypoints
@@ -62,12 +68,14 @@ def draw_path(points):
         print(len(Npoints)-2)
 
         # Plot N waypoints and a path using Cubic Hermite Spline curve fitting Method
-        #Npoints.sort()
-        plot.figure(1)
         plot.subplot(212)
+        plot.xlim(0.33, 0.78)
+        plot.ylim(-3.7,-0.3)
         plot.plot([p[0] for p in Npoints], [p[1] for p in Npoints], 'o')
+        plot.title('Path using Cubic Hermite Spline curve fitting Method for N waypoints')
         M=np.array([[2,-2,1,1],[-3,3,-2,-1],[0,0,1,0],[1,0,0,0]])
         for i in range(N+1):
+            print(Nslopes[i])
             if Npoints[i+1][0]<Npoints[i][0]:
                 xmin=Npoints[i+1][0]
                 diff=abs(Npoints[i][0]-Npoints[i+1][0])
@@ -93,6 +101,7 @@ def draw_path(points):
                 plot.plot(X,Y)
         plot.show()
 
+# function to listen to ros topic
 def listener():
     print("Waiting for rosbag to finish playing...")
     rospy.init_node('waypoint_reducer', anonymous=True)

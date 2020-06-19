@@ -19,7 +19,9 @@ A python script to reduce the way points for a robot while still trying to retai
 <img src="/output/output.gif"/>
 
 ## Approach
-TBW
+When the user specifies the number of waypoints N. we select those N waypoints (except for start and goal points) from the already available 992 waypoints such that they are equally spaced in time.
+As we have decided the N waypoints, Now we need to plan a path through them which is as close as possible to the original Trajectory. For that we use the x,y and slope of the robot with respect to axis for the selected waypoints. The coordinates and slopes for 2 consecutive waypoints are solved using an Interpolating Splines method called Cubic Hermite Spline to find the path between them. This is done for every two consecutive waypoints. This is basically curve fitting for the waypoints while considering the slopes.
+<img src="hermite.png"/>
 
 ## Build
 Steps to build
