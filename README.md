@@ -15,6 +15,9 @@ A python script to reduce the way points for a robot while still trying to retai
 5. Numpy
 6. Matplotlib
 
+## Output
+<img src="/output/output.gif"/>
+
 ## Approach
 TBW
 
