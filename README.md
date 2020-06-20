@@ -16,12 +16,23 @@ A python script to reduce the way points for a robot while still trying to retai
 6. Matplotlib
 
 ## Output
-<img src="/output/output.gif"/>
+**N=3**
+<p align="center"><img src="/output/3.png"/></p>
+**N=7**
+<p align="center"><img src="/output/7.png"/></p>
+**N=70 with closeup**
+<p align="center"><img src="/output/70n.png"/></p>
+
+## Assumptions
+1. Robot is Non-holonomic. (Car)
+2. Robot MUST pass through the waypoint with required orientation.
+3. Waypoints are given after specific time Interval.
+4. No restriction on turn that the robot can perform.
 
 ## Approach
 When the user specifies the number of waypoints N. we select those N waypoints (except for start and goal points) from the already available 992 waypoints such that they are equally spaced in time.
-As we have decided the N waypoints, Now we need to plan a path through them which is as close as possible to the original Trajectory. For that we use the x,y and slope of the robot with respect to axis for the selected waypoints. The coordinates and slopes for 2 consecutive waypoints are solved using an Interpolating Splines method called Cubic Hermite Spline to find the path between them. This is done for every two consecutive waypoints. This is basically curve fitting for the waypoints while considering the slopes.
-<img src="hermite.png"/>
+<br>As we have decided the N waypoints, Now we need to plan a path passing through the waypoints which is as close as possible to the original Trajectory. For that we use the x,y and Orienation the robot with for the selected waypoints. The coordinates and tanget vector/Orientation for 2 consecutive waypoints are solved using an Interpolating Splines method called Cubic Hermite Spline to find the path between them. This is done for every two consecutive waypoints. This is basically curve fitting for the waypoints while considering the slopes. THe robot here is assumed to be non-holonomic.
+<p align="center"><img src="hermite.png"/></p>
 
 ## Build
 Steps to build

@@ -10,6 +10,7 @@ import math
 
 points=[]
 slopes=[]
+angles=[]
 
 # Take Input form user
 def take_input():
@@ -25,35 +26,26 @@ def take_input():
 
 # Callback for listning waypoints
 def callback(msg):
-    
+    # Quartenion to euler angle conversion
     euler = tf.transformations.euler_from_quaternion([0, 0, round(msg.pose.orientation.z,2), round(msg.pose.orientation.w,2)])
+    # Obtaining a unit tangent for robot orientation
     points.append([msg.pose.position.x,msg.pose.position.y])
-    slopes.append(math.tan(euler[2]))
-    print(euler[2])
-    print(slopes[len(slopes)-1])
-    #print(len(points))
+    slopes.append([math.cos(euler[2]),math.sin(euler[2])])
+    angles.append(euler[2])
+    print(len(points))
     if len(points)>991: 
         draw_path(points)
 
 # Draw the Paths
 def draw_path(points):
-
-    # Plot original Waypoints
-    print(len(points))
-    plot.subplot(211)
-    plot.xlim(0.33, 0.78)
-    plot.ylim(-3.7,-0.3)
-    plot.plot([p[0] for p in points], [p[1] for p in points], 'o')
-    plot.title('All 992 Waypoints')
-    #plot.show(block=False)
-    
-
     while True:
         N=take_input()
-        # Select N waypoints
+
         # Append the start point x,y and slope
         Npoints=[points[0]]
         Nslopes=[slopes[0]]
+
+        # Select N waypoints
         # Divide path into N+1 Parts
         division=int(math.floor(len(points)/(N+1)))
         j=1
@@ -62,43 +54,46 @@ def draw_path(points):
             j=j+1
             Npoints.append(points[indice]) 
             Nslopes.append(slopes[indice])
+
         # Append the goal point x,y and slope
         Npoints.append(points[len(points)-1])
         Nslopes.append(slopes[len(slopes)-1])
-        print(len(Npoints)-2)
+
+        # Plot original Waypoints
+        plot.figure(1)
+        plot.xlim(0.33, 0.78)
+        plot.ylim(-3.7,-0.3)
+        plot.plot([p[0] for p in points], [p[1] for p in points], 'o')
+        plot.title('All 992 Waypoints')
 
         # Plot N waypoints and a path using Cubic Hermite Spline curve fitting Method
-        plot.subplot(212)
+        plot.figure(2)
         plot.xlim(0.33, 0.78)
         plot.ylim(-3.7,-0.3)
         plot.plot([p[0] for p in Npoints], [p[1] for p in Npoints], 'o')
         plot.title('Path using Cubic Hermite Spline curve fitting Method for N waypoints')
         M=np.array([[2,-2,1,1],[-3,3,-2,-1],[0,0,1,0],[1,0,0,0]])
+        
         for i in range(N+1):
-            print(Nslopes[i])
-            if Npoints[i+1][0]<Npoints[i][0]:
-                xmin=Npoints[i+1][0]
-                diff=abs(Npoints[i][0]-Npoints[i+1][0])
-                G=np.array([[Npoints[i+1][1]],[Npoints[i][1]],[Nslopes[i+1]*diff],[Nslopes[i]*diff]])
-            else:
-                xmin=Npoints[i][0]
-                diff=abs(Npoints[i+1][0]-Npoints[i][0])
-                G=np.array([[Npoints[i][1]],[Npoints[i+1][1]],[Nslopes[i]*diff],[Nslopes[i+1]*diff]])
+            weigh=float(N*0.5)
+            G1=np.array([[Npoints[i][1]],[Npoints[i+1][1]],[float(Nslopes[i][1]/weigh)],[float(Nslopes[i+1][1]/weigh)]])
+            G2=np.array([[Npoints[i][0]],[Npoints[i+1][0]],[float(Nslopes[i][0]/weigh)],[float(Nslopes[i+1][0]/weigh)]])
     
-            # Polynomial Weights
-            V=np.matmul(M,G)
-            print(V)
+            # Polynomial Coefficients
+            V1=np.matmul(M,G1)
+            V2=np.matmul(M,G2)
     
             X=[]
             Y=[]
             # Plot  New Path
-            for x in np.arange(0, 1, 0.002):
-                y= (V[0][0]*x**3)+(V[1][0]*x**2)+(V[2][0]*x)+V[3][0]
-                # Remap from 0-1 to x1-x2
-                x=xmin+(diff*x)
-                X.append(x)
+            for u in np.arange(0, 1, 0.002):
+                # Parametric equation for y
+                y= (V1[0][0]*u**3)+(V1[1][0]*u**2)+(V1[2][0]*u)+V1[3][0]
                 Y.append(y)
-                plot.plot(X,Y)
+                # Parametric equation for x
+                x= (V2[0][0]*u**3)+(V2[1][0]*u**2)+(V2[2][0]*u)+V2[3][0]
+                X.append(x)
+            plot.plot(X,Y)
         plot.show()
 
 # function to listen to ros topic
