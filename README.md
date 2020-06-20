@@ -69,7 +69,7 @@ roscore
 source devel/setup.bash
 rosrun waypoint_reducer waypoint_reducer.py
 ```
-Wait till *"Waiting for rosbag to finish playing..."* Message is Displayed
+**Wait till *"Waiting for rosbag to finish playing..."* Message is Displayed**
 
 **Run Bag File**
 <br>**Note**- Make sure the bag File for the waypoint reducuction question is already present in the catkin_ws folder
