@@ -18,8 +18,10 @@ A python script to reduce the way points for a robot while still trying to retai
 ## Output
 **N=3**
 <p align="center"><img src="/output/3.png"/></p>
+
 **N=7**
 <p align="center"><img src="/output/7.png"/></p>
+
 **N=70 with closeup**
 <p align="center"><img src="/output/70n.png"/></p>
 
@@ -31,8 +33,14 @@ A python script to reduce the way points for a robot while still trying to retai
 
 ## Approach
 When the user specifies the number of waypoints N. we select those N waypoints (except for start and goal points) from the already available 992 waypoints such that they are equally spaced in time.
-<br>As we have decided the N waypoints, Now we need to plan a path passing through the waypoints which is as close as possible to the original Trajectory. For that we use the x,y and Orienation the robot with for the selected waypoints. The coordinates and tanget vector/Orientation for 2 consecutive waypoints are solved using an Interpolating Splines method called Cubic Hermite Spline to find the path between them. This is done for every two consecutive waypoints. This is basically curve fitting for the waypoints while considering the slopes. THe robot here is assumed to be non-holonomic.
+<br>As we have decided the N waypoints, Now we need to plan a path passing through the waypoints which is as close as possible to the original Trajectory. For that we use the x,y and Orienation the robot with for the selected waypoints. The coordinates and tanget vector/Orientation for 2 consecutive waypoints are solved using an Interpolating Splines method called Cubic Hermite Spline to find the path between them. This is done for every two consecutive waypoints. This is basically curve fitting for the waypoints while considering the slopes. THe robot here is assumed to be non-holonomic. Reason for choosing Cubic Hermite spline is because we want to interpolate the curve between the waypoints while aslo passing through them.
 <p align="center"><img src="hermite.png"/></p>
+
+## Improvements
+1. Can be modified with weighted tanget vector to modify intensity turn.
+
+## Video
+In Output Directory as well as Link- https://drive.google.com/file/d/17B1XIymD9slUg9rSjZKr899PWzt9gour/view?usp=sharing
 
 ## Build
 Steps to build
@@ -56,15 +64,23 @@ roscore
 ```
 
 **Run Script**
-<br> Open a new Terminal using Ctrl+T (i.e make sure you are in catkin_ws directory)
+<br> Open a new Terminal using Ctrl+T (make sure you are in catkin_ws directory)
 ```
 source devel/setup.bash
 rosrun waypoint_reducer waypoint_reducer.py
 ```
+Wait till *"Waiting for rosbag to finish playing..."* Message is Displayed
 
 **Run Bag File**
 <br>**Note**- Make sure the bag File for the waypoint reducuction question is already present in the catkin_ws folder
-<br> Open a new Terminal using Ctrl+T (i.e make sure you are in catkin_ws directory)
+<br> Open a new Terminal using Ctrl+T (make sure you are in catkin_ws directory)
 ```
 rosbag play path_test.bag
 ```
+
+**After Bag File finishes PLaying**
+1. After Bag File finishes PLaying. 
+2. Go to the terminal window in which the script is playing. You will see a message *"Enter the number of Points (N):"*
+3. Now enter the number of waypoints to want
+4. Two plots will be displayed, one with original waypoints, second with N waypoints and its path.
+5. To try Again, Close both the plots and start again from step 1.
